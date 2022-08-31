@@ -2,19 +2,19 @@ from __future__ import division
 from copy import copy, deepcopy
 
 class Term(object):
-	def __init__(self, coef, order):
+	def __init__(self, coef, order, var='x'):
 		if order <0:
 			raise Exception('Order must be non-negative')
-		self.coef, self.order = coef, order
+		self.coef, self.order, self.var = coef, order, var
 
 	def __repr__(self):
-		base = 'Term({coef}, {order})'.format(coef=self.coef, order=self.order)
+		base = 'Term({coef}, {order}) :: '.format(coef=self.coef, order=self.order)
 		if self.coef==0:
-			return base+':: 0'
+			return base+'0'
 		elif self.order==0:
-			return base+':: {coef}'.format(coef=self.coef)
+			return base+'{coef}'.format(coef=self.coef)
 		else:
-			return base+':: {coef}*x^{order}'.format(coef=self.coef, order=self.order)
+			return base+'{coef}*{var}^{order}'.format(coef=self.coef, order=self.order, var=self.var)
 
 	def __str__(self):
 		if self.coef==0:
@@ -22,7 +22,7 @@ class Term(object):
 		elif self.order==0:
 			return '{coef}'.format(coef=self.coef)
 		else:
-			return '{coef}*x^{order}'.format(coef=self.coef, order=self.order)
+			return '{coef}*{var}^{order}'.format(coef=self.coef, order=self.order, var=self.var)
 
 	def __call__(self, value):
 		return self.coef*(value**self.order)
@@ -55,11 +55,11 @@ class Term(object):
 		trail.extend([self.coef])
 		return Polynomial(trail)
 
-
 class Polynomial(object):
-	def __init__(self, coefs):
+	def __init__(self, coefs, variable_name='x'):
 		self.coefs = self.trim(coefs)
 		self.degree = len(coefs) -1
+		self.var = variable_name
 		self.update_terms()
 
 	def __repr__(self):
@@ -92,7 +92,7 @@ class Polynomial(object):
 	def update_terms(self):
 		self.terms={}
 		for order, coef in enumerate(self.coefs):
-			self.terms[order]= Term(coef, order)
+			self.terms[order]= Term(coef, order, var=self.var)
 
 	def trim(self, coefs=None):
 		trim = True
@@ -161,8 +161,8 @@ class Polynomial(object):
 			d = copy(other)
 			t = rem.lead()/other.lead()
 			quot = quot + t.asPolynomial()
-			print 'new quotient term: ', quot
+			print('new quotient term: ', quot)
 			rem = rem - d.mul_term(t)
-			print 'current reminder: ', rem
+			print('current reminder: ', rem)
 		return (quot, rem)
 
