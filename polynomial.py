@@ -181,22 +181,23 @@ class Polynomial(object):
 		integral_coefs = [0] + integral_coefs
 		return Polynomial(coefs=integral_coefs, variable_name=self.var)
 
+	# TODO: move these static methods to utils file
 	@staticmethod
-	def _next_guess(guess_k, guess_list, p, p_prime):
+	def _next_guess(guess_k: complex, guess_list: list, p, p_prime) -> complex:
 		a = p(guess_k)/p_prime(guess_k)
 		b = sum([1/(guess_k - z) for z in guess_list if z != guess_k])
 		w_k = a/(1 - a*b)
 		return guess_k - w_k
 	
 	@staticmethod
-	def _convergence_value(guess_list, p):
+	def _convergence_value(guess_list: list, p) -> float:
 		return sum([abs(p(guess)) for guess in guess_list])
 	
 	@staticmethod
-	def _round_complex(x, precision=4):
+	def _round_complex(x: complex, precision=4) -> complex:
 		return complex(round(x.real, precision),round(x.imag, precision))
 
-	def find_roots(self, tolerance=10**-6, max_iters=100, precision=4):
+	def find_roots(self, tolerance=10**-6, max_iters=100, precision=4) -> list:
 		# https://en.wikipedia.org/wiki/Aberth_method
 		from numpy.random import uniform
 		p_prime = self.derivative()
