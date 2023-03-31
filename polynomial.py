@@ -56,8 +56,9 @@ class Term(object):
 		return Polynomial(trail)
 
 class Polynomial(object):
-	def __init__(self, coefs, variable_name='x'):
+	def __init__(self, coefs, roots=None, variable_name='x'):
 		self.coefs = self.trim(coefs)
+		self.roots = roots
 		self.degree = len(coefs) -1
 		self.var = variable_name
 		self.update_terms()
@@ -165,4 +166,52 @@ class Polynomial(object):
 			rem = rem - d.mul_term(t)
 			print('current reminder: ', rem)
 		return (quot, rem)
+	
+	def derivative(self):
+		derivative_coefs = []
+		for order, coef in enumerate(self.coefs):
+			derivative_coefs.append(order*coef)
+		derivative_coefs = derivative_coefs[1:]
+		return Polynomial(coefs=derivative_coefs, variable_name=self.var)
+
+	@staticmethod
+	def _next_guess(guess_k, guess_list, p, p_prime):
+		a = p(guess_k)/p_prime(guess_k)
+		b = sum([1/(guess_k - z) for z in guess_list if z != guess_k])
+		w_k = a/(1 - a*b)
+		return guess_k - w_k
+	
+	@staticmethod
+	def _convergence_value(guess_list, p):
+		return sum([abs(p(guess)) for guess in guess_list])
+	
+	@staticmethod
+	def _round_complex(x, precision=4):
+		return complex(round(x.real, precision),round(x.imag, precision))
+
+	def find_roots(self, tolerance=10**-6, max_iters=100, precision=4):
+		# https://en.wikipedia.org/wiki/Aberth_method
+		from numpy.random import uniform
+		p_prime = self.derivative()
+		bound = 1 + max([coef/self.coefs[-1] for coef in self.coefs[:-1]]) # https://en.wikipedia.org/wiki/Geometrical_properties_of_polynomial_roots#Lagrange's_and_Cauchy's_bounds
+		guess_list = uniform(-1, 1, self.degree) + 1.j * uniform(-1, 1, self.degree) # TODO: take into acocunt bound
+		convergence_value = self._convergence_value(guess_list, self)
+		iters = 0
+		while (convergence_value > tolerance) & (iters < max_iters):
+			iters+=1
+			new_guess_list = []
+			for guess in guess_list:
+				new_guess_list.append(self._next_guess(guess, guess_list, self, p_prime))
+			guess_list = new_guess_list
+			convergence_value = self._convergence_value(guess_list, self)
+		guess_list = [self._round_complex(x, precision) for x in guess_list]
+		self.roots = guess_list
+		print(f'Number of iterations was {iters}, while max iterations was {max_iters}. The covergence value is {convergence_value}'\
+			.format(iters, max_iters, convergence_value))
+		return guess_list
+
+
+
+
+
 
