@@ -44,9 +44,10 @@ print('reminder:: ', p6[1])
 print('original:: ', p2)
 print('reconstruct:: ', p6[0]*p1 + p6[1])
 
-print('--- Return Derivative of Polynomial ---')
+print('--- Derivative and Integral of Polynomial ---')
 print('Original polynomial: ', p2)
 print('Derivative: ', p2.derivative())
+print('Integral: ', p2.integral())
 
 print('--- Find Roots ---')
 print('Roots: ', Polynomial([-1,0,1]).find_roots())

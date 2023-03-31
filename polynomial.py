@@ -173,6 +173,13 @@ class Polynomial(object):
 			derivative_coefs.append(order*coef)
 		derivative_coefs = derivative_coefs[1:]
 		return Polynomial(coefs=derivative_coefs, variable_name=self.var)
+	
+	def integral(self):
+		integral_coefs = []
+		for order, coef in enumerate(self.coefs):
+			integral_coefs.append(coef/(order + 1))
+		integral_coefs = [0] + integral_coefs
+		return Polynomial(coefs=integral_coefs, variable_name=self.var)
 
 	@staticmethod
 	def _next_guess(guess_k, guess_list, p, p_prime):
