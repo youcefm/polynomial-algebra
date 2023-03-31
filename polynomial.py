@@ -199,15 +199,14 @@ class Polynomial(object):
 		iters = 0
 		while (convergence_value > tolerance) & (iters < max_iters):
 			iters+=1
-			new_guess_list = []
-			for guess in guess_list:
-				new_guess_list.append(self._next_guess(guess, guess_list, self, p_prime))
-			guess_list = new_guess_list
+			guess_list = [self._next_guess(guess, guess_list, self, p_prime) for guess in guess_list]
 			convergence_value = self._convergence_value(guess_list, self)
+		
+		print(f'{iters} iterations out of {max_iters} maximum. The covergence value is {convergence_value}'\
+			.format(iters, max_iters, convergence_value))
+		
 		guess_list = [self._round_complex(x, precision) for x in guess_list]
 		self.roots = guess_list
-		print(f'Number of iterations was {iters}, while max iterations was {max_iters}. The covergence value is {convergence_value}'\
-			.format(iters, max_iters, convergence_value))
 		return guess_list
 
 
